@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pencil Sketch Converter</title>
+    <link rel="icon" href="https://thumbs.dreamstime.com/b/neon-blue-vector-pencil-icon-glowing-effect-solid-dark-background-357519333.jpg" type="image/jpeg">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Roboto:wght@300;400&display=swap');
+
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #e0e0ff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(120, 0, 255, 0.1), transparent 70%);
+            pointer-events: none;
+            animation: pulse 20s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.3; }
+            100% { opacity: 0.6; }
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            background: linear-gradient(90deg, #00ffff, #ff00ff, #00ff00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 255, 255, 0.8);
+            animation: glowText 4s infinite alternate;
+        }
+
+        @keyframes glowText {
+            0% { text-shadow: 0 0 20px rgba(0, 255, 255, 0.6); }
+            100% { text-shadow: 0 0 40px rgba(255, 0, 255, 0.8); }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+            z-index: 1;
+        }
+
+        .upload-card {
+            background: rgba(20, 20, 40, 0.4);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.5),
+                0 0 40px rgba(0, 255, 255, 0.2);
+            transition: all 0.4s ease;
+        }
+
+        .upload-card:hover {
+            box-shadow: 
+                0 12px 48px rgba(0, 0, 0, 0.6),
+                0 0 60px rgba(0, 255, 255, 0.4);
+            transform: translateY(-8px);
+        }
+
+        .custom-file-upload {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            background: linear-gradient(45deg, #00ffff, #ff00ff);
+            color: #000;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .custom-file-upload::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.6s;
+        }
+
+        .custom-file-upload:hover::before {
+            left: 100%;
+        }
+
+        .custom-file-upload:hover {
+            box-shadow: 0 0 40px rgba(255, 0, 255, 0.8);
+            transform: scale(1.05);
+        }
+
+        /* Hide the default file input completely */
+        input[type="file"] {
+            position: absolute;
+            left: -9999px;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        input[type="file"]::file-selector-button {
+            display: none;
+        }
+
+        .images-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 3rem;
+        }
+
+        @media (min-width: 768px) {
+            .images-container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .image-card {
+            background: rgba(15, 15, 35, 0.5);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(138, 43, 226, 0.4);
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: 
+                0 10px 40px rgba(0, 0, 0, 0.6),
+                inset 0 0 20px rgba(138, 43, 226, 0.1),
+                0 0 50px rgba(0, 255, 255, 0.15);
+            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+            overflow: hidden;
+        }
+
+        .image-card:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.8),
+                0 0 80px rgba(0, 255, 255, 0.3),
+                0 0 100px rgba(255, 0, 255, 0.2);
+        }
+
+        .image-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            margin: 0 0 1.5rem;
+            font-size: 1.8rem;
+            text-align: center;
+            color: #00ffff;
+            text-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            background-color: #f8fafc;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        button {
+            padding: 1rem 2.5rem;
+            background: transparent;
+            color: #fff;
+            border: 2px solid #00ffff;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.3), transparent);
+            transition: left 0.6s;
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:hover {
+            background: rgba(0, 255, 255, 0.1);
+            box-shadow: 0 0 40px rgba(0, 255, 255, 0.8);
+            transform: translateY(-4px);
+        }
+
+        button:disabled {
+            border-color: #444;
+            color: #666;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .reset-btn {
+            border-color: #ff00ff;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
+        }
+
+        .reset-btn:hover {
+            background: rgba(255, 0, 255, 0.1);
+            box-shadow: 0 0 40px rgba(255, 0, 255, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <h1>Pencil Sketch Converter</h1>
+    <div class="container">
+        <div class="upload-card">
+            <label for="imageInput" class="custom-file-upload">Choose Image</label>
+            <input type="file" id="imageInput" accept="image/*">
+        </div>
+
+        <div class="images-container">
+            <div class="image-card">
+                <h3>Original Image</h3>
+                <canvas id="originalCanvas"></canvas>
+            </div>
+            <div class="image-card">
+                <h3>Pencil Sketch</h3>
+                <canvas id="sketchCanvas"></canvas>
+                <div class="controls">
+                    <button id="downloadBtn" disabled>Download Sketch</button>
+                    <button id="resetBtn" class="reset-btn" disabled>Reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get DOM elements
+        const imageInput = document.getElementById('imageInput');
+        const originalCanvas = document.getElementById('originalCanvas');
+        const sketchCanvas = document.getElementById('sketchCanvas');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        const originalCtx = originalCanvas.getContext('2d');
+        const sketchCtx = sketchCanvas.getContext('2d');
+
+        const MAX_WIDTH = 800; // Maximum width for processing and display
+        const BLUR_RADIUS = '12px'; // Blur strength for sketch lines
+
+        // Helper: Resize canvas while preserving aspect ratio
+        function resizeCanvas(canvas, img) {
+            const scale = Math.min(MAX_WIDTH / img.width, MAX_WIDTH / img.height);
+            canvas.width = img.width * scale;
+            canvas.height = img.height * scale;
+        }
+
+        // Main pencil sketch effect using separate layers for proper color-dodge
+        function createPencilSketch(img) {
+            // Resize both canvases
+            resizeCanvas(originalCanvas, img);
+            resizeCanvas(sketchCanvas, img);
+
+            // Draw original image
+            originalCtx.drawImage(img, 0, 0, originalCanvas.width, originalCanvas.height);
+
+            // Clear sketch canvas and set light paper background
+            sketchCtx.fillStyle = '#f8fafc';
+            sketchCtx.fillRect(0, 0, sketchCanvas.width, sketchCanvas.height);
+
+            // Step 1: Draw desaturated (grayscale) base layer
+            sketchCtx.filter = 'grayscale(100%)';
+            sketchCtx.drawImage(img, 0, 0, sketchCanvas.width, sketchCanvas.height);
+
+            // Step 2: Draw inverted + blurred + grayscale overlay with color-dodge
+            sketchCtx.globalCompositeOperation = 'color-dodge';
+            sketchCtx.filter = `grayscale(100%) invert(1) blur(${BLUR_RADIUS})`;
+            sketchCtx.drawImage(img, 0, 0, sketchCanvas.width, sketchCanvas.height);
+
+            // Reset compositing and filter
+            sketchCtx.globalCompositeOperation = 'source-over';
+            sketchCtx.filter = 'none';
+
+            // Enable buttons
+            downloadBtn.disabled = false;
+            resetBtn.disabled = false;
+        }
+
+        // Handle image upload
+        imageInput.addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        createPencilSketch(img);
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+
+        // Download sketch as PNG
+        downloadBtn.addEventListener('click', function() {
+            const link = document.createElement('a');
+            link.download = 'pencil-sketch.png';
+            link.href = sketchCanvas.toDataURL('image/png');
+            link.click();
+        });
+
+        // Reset application state
+        resetBtn.addEventListener('click', function() {
+            originalCtx.clearRect(0, 0, originalCanvas.width, originalCanvas.height);
+            sketchCtx.clearRect(0, 0, sketchCanvas.width, sketchCanvas.height);
+            originalCanvas.width = 1;
+            originalCanvas.height = 1;
+            sketchCanvas.width = 1;
+            sketchCanvas.height = 1;
+            imageInput.value = '';
+            downloadBtn.disabled = true;
+            resetBtn.disabled = true;
+        });
+    </script>
+</body>
+</html>
