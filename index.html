@@ -276,48 +276,97 @@
         const originalCtx = originalCanvas.getContext('2d');
         const sketchCtx = sketchCanvas.getContext('2d');
 
-        const MAX_WIDTH = 800; // Maximum width for processing and display
-        const BLUR_RADIUS = '12px'; // Blur strength for sketch lines
+        const MAX_WIDTH = 800;
+        const BLUR_RADIUS = '12px';
+        const CACHE_NAME = 'pencil-sketches-v1';
 
-        // Helper: Resize canvas while preserving aspect ratio
+        // Register minimal inlined Service Worker for Cache API support (single-file compatible)
+        if ('serviceWorker' in navigator && 'caches' in window) {
+            const swCode = `
+                self.addEventListener('install', e => self.skipWaiting());
+                self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+                self.addEventListener('fetch', e => {
+                    // Minimal pass-through handler
+                    e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+                });
+            `;
+            const blob = new Blob([swCode], { type: 'application/javascript' });
+            const swUrl = URL.createObjectURL(blob);
+            navigator.serviceWorker.register(swUrl).catch(console.error);
+        }
+
+        // Save the latest sketch to browser Cache Storage (private to user & origin)
+        async function saveSketchToCache() {
+            if (!('caches' in window)) return;
+            try {
+                const blob = await new Promise(resolve => sketchCanvas.toBlob(resolve, 'image/png'));
+                const response = new Response(blob);
+                const cache = await caches.open(CACHE_NAME);
+                await cache.put('latest-sketch', response);
+            } catch (err) {
+                console.warn('Failed to cache sketch:', err);
+            }
+        }
+
+        // Load the last saved sketch from cache on page load (if exists)
+        async function loadLastSketchFromCache() {
+            if (!('caches' in window)) return;
+            try {
+                const cache = await caches.open(CACHE_NAME);
+                const cachedResponse = await cache.match('latest-sketch');
+                if (cachedResponse) {
+                    const blob = await cachedResponse.blob();
+                    const url = URL.createObjectURL(blob);
+                    const img = new Image();
+                    img.onload = () => {
+                        resizeCanvas(sketchCanvas, img);
+                        sketchCtx.drawImage(img, 0, 0, sketchCanvas.width, sketchCanvas.height);
+                        URL.revokeObjectURL(url);
+                        downloadBtn.disabled = false;
+                        resetBtn.disabled = false;
+                    };
+                    img.src = url;
+                }
+            } catch (err) {
+                console.warn('No cached sketch available:', err);
+            }
+        }
+
+        // Resize canvas preserving aspect ratio
         function resizeCanvas(canvas, img) {
             const scale = Math.min(MAX_WIDTH / img.width, MAX_WIDTH / img.height);
             canvas.width = img.width * scale;
             canvas.height = img.height * scale;
         }
 
-        // Main pencil sketch effect using separate layers for proper color-dodge
-        function createPencilSketch(img) {
-            // Resize both canvases
+        // Main pencil sketch effect
+        async function createPencilSketch(img) {
             resizeCanvas(originalCanvas, img);
             resizeCanvas(sketchCanvas, img);
 
-            // Draw original image
             originalCtx.drawImage(img, 0, 0, originalCanvas.width, originalCanvas.height);
 
-            // Clear sketch canvas and set light paper background
             sketchCtx.fillStyle = '#f8fafc';
             sketchCtx.fillRect(0, 0, sketchCanvas.width, sketchCanvas.height);
 
-            // Step 1: Draw desaturated (grayscale) base layer
             sketchCtx.filter = 'grayscale(100%)';
             sketchCtx.drawImage(img, 0, 0, sketchCanvas.width, sketchCanvas.height);
 
-            // Step 2: Draw inverted + blurred + grayscale overlay with color-dodge
             sketchCtx.globalCompositeOperation = 'color-dodge';
             sketchCtx.filter = `grayscale(100%) invert(1) blur(${BLUR_RADIUS})`;
             sketchCtx.drawImage(img, 0, 0, sketchCanvas.width, sketchCanvas.height);
 
-            // Reset compositing and filter
             sketchCtx.globalCompositeOperation = 'source-over';
             sketchCtx.filter = 'none';
 
-            // Enable buttons
             downloadBtn.disabled = false;
             resetBtn.disabled = false;
+
+            // Save to browser cache after generation
+            await saveSketchToCache();
         }
 
-        // Handle image upload
+        // Image upload handler
         imageInput.addEventListener('change', function(e) {
             if (e.target.files && e.target.files[0]) {
                 const reader = new FileReader();
@@ -332,7 +381,7 @@
             }
         });
 
-        // Download sketch as PNG
+        // Download functionality
         downloadBtn.addEventListener('click', function() {
             const link = document.createElement('a');
             link.download = 'pencil-sketch.png';
@@ -340,8 +389,8 @@
             link.click();
         });
 
-        // Reset application state
-        resetBtn.addEventListener('click', function() {
+        // Reset functionality
+        resetBtn.addEventListener('click', async function() {
             originalCtx.clearRect(0, 0, originalCanvas.width, originalCanvas.height);
             sketchCtx.clearRect(0, 0, sketchCanvas.width, sketchCanvas.height);
             originalCanvas.width = 1;
@@ -351,7 +400,16 @@
             imageInput.value = '';
             downloadBtn.disabled = true;
             resetBtn.disabled = true;
+
+            // Optional: clear cache on reset
+            if ('caches' in window) {
+                const cache = await caches.open(CACHE_NAME);
+                await cache.delete('latest-sketch');
+            }
         });
+
+        // Attempt to load last sketch when page loads
+        window.addEventListener('DOMContentLoaded', loadLastSketchFromCache);
     </script>
 </body>
 </html>
