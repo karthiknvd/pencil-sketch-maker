@@ -16,7 +16,7 @@ A sleek, futuristic, single-file web application that instantly transforms any u
 ## Live Demo
 
 Visit the deployed application:  
-https://pencil-sketch-converter.vercel.app
+https://pencil-sketch-maker.vercel.app
 
 ## How It Works
 
@@ -39,7 +39,7 @@ https://pencil-sketch-converter.vercel.app
 ## Deployment
 
 Deployed on Vercel as a static site:  
-https://pencil-sketch-converter.vercel.app
+https://pencil-sketch-maker.vercel.app
 
 To deploy your own copy:
 1. Fork or clone this repository
