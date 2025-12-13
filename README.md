@@ -34,7 +34,7 @@ https://pencil-sketch-maker.vercel.app
 - HTML5 Canvas for image processing
 - CSS3 (glassmorphism, gradients, animations, backdrop-filter)
 - Vanilla JavaScript (no frameworks)
-- Single `pencil.html` file – fully self-contained
+- Single `index.html` file – fully self-contained
 
 ## Deployment
 
@@ -47,7 +47,7 @@ To deploy your own copy:
 3. Import into Vercel (auto-detects static site)
 4. Live in seconds!
 
-Alternatively, simply open `pencil.html` in any modern browser—no server required.
+Alternatively, simply open `index.html` in any modern browser—no server required.
 
 ## Browser Support
 
