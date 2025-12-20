@@ -1,7 +1,8 @@
-# Pencil Sketch Converter
+# Pencil Sketch Maker
 
 A sleek, futuristic, single-file web application that instantly transforms any uploaded image into a realistic pencil sketch using pure HTML5 Canvas and CSS filters—no frameworks, no backend, no external libraries.
 
+---
 
 ## Features
 
@@ -13,10 +14,14 @@ A sleek, futuristic, single-file web application that instantly transforms any u
 - **Clean File Upload**: Custom neon-styled button with no visible default browser file input elements.
 - **Favicon Support**: Neon pencil icon displayed in browser tabs.
 
+---
+
 ## Live Demo
 
 Visit the deployed application:  
 https://pencil-sketch-maker.vercel.app
+
+---
 
 ## How It Works
 
@@ -29,12 +34,16 @@ https://pencil-sketch-maker.vercel.app
 4. Compare side-by-side with the original.
 5. Download the sketch or reset to start over.
 
+---
+
 ## Technology Stack
 
 - HTML5 Canvas for image processing
 - CSS3 (glassmorphism, gradients, animations, backdrop-filter)
 - Vanilla JavaScript (no frameworks)
 - Single `index.html` file – fully self-contained
+
+---
 
 ## Deployment
 
@@ -49,6 +58,8 @@ To deploy your own copy:
 
 Alternatively, simply open `index.html` in any modern browser—no server required.
 
+---
+
 ## Browser Support
 
 Works on all modern browsers supporting:
@@ -58,11 +69,23 @@ Works on all modern browsers supporting:
 
 Recommended: Chrome, Firefox, Edge, Safari (latest versions)
 
+---
+
 ## Credits
 
 - Built with pure passion for client-side web artistry
 - Pencil sketch algorithm inspired by classic Photoshop techniques
 - Futuristic UI design crafted for immersive visual experience
+
+---
+
+## ☕ Support
+
+If this project helped you or inspired your work:
+
+👉 **Buy me a coffee:** https://buymeacoffee.com/webnate
+
+Every bit of support helps keep projects like this open-source and evolving.
 
 ---
 
